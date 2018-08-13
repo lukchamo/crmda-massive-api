@@ -6,7 +6,7 @@ const api = express.Router()
 
 api.post("/customers/write-massive", multipart(), customersController.writeMassive)
 api.get("/customers/test", function(req,res){
-  res.send('Test ok jajjajaja - Sollers')
+  res.send('Test ok jajjajaja - Rama LK ')
 })
 
 export default api
