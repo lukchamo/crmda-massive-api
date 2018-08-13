@@ -68,7 +68,7 @@ async function writeMassive(req, res) {
 
             })
 
-            DB.ref("/customers2/" + x[2]).update(Customer)
+            DB.ref("/customers2pm/" + x[2]).update(Customer)
                               
             
           }
