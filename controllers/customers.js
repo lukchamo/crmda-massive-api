@@ -14,31 +14,71 @@ async function writeMassive(req, res) {
         const sourceKey = req.body.sourceKey
         const uid = req.body.uid
 
+        var countUpdated = 0;
+        var countNews = 0;
+        var countCustomers = 0;
+
+        countCustomers = result.data.length;
+
         result.data.forEach(x => {
-          DB.ref("/customers/" + x[2]).update({
-            fechaRtm: x[0],
-            nombreCliente: x[1],
-            registro1: x[3],
-            identificacion: x[4],
-            direccion: x[5],
-            telefonos: x[6],
-            marca: x[7],
-            linea: x[8],
-            tipoServicio: x[9],
-            tipoVehiculo: x[10],
-            modelo: x[11],
-            fechaRtmVencida: x[12],
-            registro2: x[13],
-            createdAt: now,
-            sourceKey: sourceKey,
-            location: selectedLocation,
-            createdBy: uid,
-          })
+
+          //var self =  this
+          console.log(x[0]);
+          
+          if(x[0] && x[12] != ''){
+
+
+            let fechaRtmVencida 
+            let fechaRtmVencidaUnix
+
+            if(x[12] != ''){
+             fechaRtmVencida = moment(x[12],'D/MM/YYYY')
+             fechaRtmVencidaUnix = moment(fechaRtmVencida).unix()
+            }else{
+              fechaRtmVencidaUnix = ''
+            }
+
+            const Customer = {
+              fechaRtm: x[0],
+              nombreCliente: x[1],
+              registro1: x[3],
+              identificacion: x[4],
+              direccion: x[5],
+              telefonos: x[6],
+              marca: x[7],
+              linea: x[8],
+              tipoServicio: x[9],
+              tipoVehiculo: x[10],
+              modelo: x[11],
+              fechaRtmVencida: x[12],
+              fechaRtmVencidaUnix: fechaRtmVencidaUnix,
+              registro2: x[13],
+              createdAt: now,
+              sourceKey: sourceKey,
+              location: selectedLocation,
+              createdBy: uid,
+            }
+
+            DB.ref("/customers2/").child(x[2]).once('value',snapshot=>{
+              if(snapshot.exists()){
+                countUpdated++;
+                console.log('Actualizó');
+                
+              }      
+
+            })
+
+            DB.ref("/customers2/" + x[2]).update(Customer)
+                              
+            
+          }
         })
-        return res.status(200).json({ success: true })
+        return res.status(200).json({ success: true,  countUpdated:countUpdated ,   countNews: countNews, countCustomers: countCustomers})
       }
     })
   } catch(ex) {
+    console.log(ex);
+    
     return res.status(500).json({ error: ex })
   }
 }
