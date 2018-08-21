@@ -14,6 +14,13 @@ async function writeMassive(req, res) {
         const sourceKey = req.body.sourceKey
         const uid = req.body.uid
 
+        const locationRef = DB.ref("/locations/"+selectedLocation)
+
+        let locationName
+        locationRef.once('value', locationSnap=>{
+          locationName = locationSnap.val()
+        })
+
         var countUpdated = 0;
         var countNews = 0;
         var countCustomers = 0;
@@ -23,9 +30,9 @@ async function writeMassive(req, res) {
         result.data.forEach(x => {
 
           //var self =  this
-          console.log(x[0]);
+          //console.log(x[0]);
           
-          if(x[0] && x[12] != ''){
+          if(x[0]){
 
 
             let fechaRtmVencida 
@@ -38,46 +45,98 @@ async function writeMassive(req, res) {
               fechaRtmVencidaUnix = ''
             }
 
-            const Customer = {
-              fechaRtm: x[0],
-              nombreCliente: x[1],
-              registro1: x[3],
-              identificacion: x[4],
-              direccion: x[5],
-              telefonos: x[6],
-              marca: x[7],
-              linea: x[8],
-              tipoServicio: x[9],
-              tipoVehiculo: x[10],
-              modelo: x[11],
-              fechaRtmVencida: x[12],
-              fechaRtmVencidaUnix: fechaRtmVencidaUnix,
-              registro2: x[13],
-              createdAt: now,
-              sourceKey: sourceKey,
-              location: selectedLocation,
-              createdBy: uid,
-            }
+            //DB.ref("/customers/")
+            var telefonos = [] 
 
-            DB.ref("/customers2/").child(x[2]).once('value',snapshot=>{
-              if(snapshot.exists()){
-                countUpdated++;
-                console.log('Actualizó');
-                
-              }      
+            DB.ref("/customers").child(x[2]).once('value',customerSnapshot=>{
 
+              const Customer = customerSnapshot.val()
+              if(customerSnapshot.exists()){
+                console.log('Existente', Customer.placa );
+                  telefonos = Customer.telefonos
+
+                  //console.log(telefonos)
+                  if(Customer.telefonos){
+                    if(x[6].length == 10){   
+                      if(telefonos.indexOf(x[6]) === -1) {                                           
+                        telefonos.push(x[6]) 
+                      }
+                    }                    
+                    if(x[6].length == 10){            
+                      if(telefonos.indexOf(x[13]) === -1) {
+                        telefonos.push(x[13]) 
+                      }
+                    }
+                  }
+              }else{
+                console.log('NUEVO');
+                if(x[6].length == 10){ 
+                 telefonos.push(x[6]) 
+                }
+                if(x[13].length == 7 && x[13] != 1000000){      
+                  telefonos.push(x[13])
+                } 
+               
+              }
+              
+              
+
+            }).then(()=>{
+              const Customer = {
+                fechaRtm: x[0] || null,
+                nombreCliente: x[1] || null,
+                registro1: x[3] || null,
+                identificacion: x[4] || null,
+                direccion: x[5] || null,
+                telefonos: telefonos,
+                marca: x[7] || null,
+                linea: x[8] || null,
+                tipoServicio: x[9] || null,
+                tipoVehiculo: x[10] || null,
+                modelo: x[11] || null,
+                fechaRtmVencida: x[12] || null,
+                fechaRtmVencidaUnix: fechaRtmVencidaUnix || null,
+                //registro2: x[13],
+                createdAt: now,
+                sourceKey: sourceKey,
+                location: selectedLocation,
+                createdBy: uid,
+                statusCode: 're_venta'
+              }
+
+              DB.ref("/customers/" + x[2]).update(Customer)
             })
 
-            DB.ref("/customers2pm/" + x[2]).update(Customer)
+            
+
+            
+            
+
+            //console.log(Customer);
+            
+            //console.log('Placa:'+ x[2] +'Tel:'+ telefonos + 'fecha:' + (fechaRtmVencidaUnix || null)  );
+            
+            
+
+            
                               
             
           }
+
+          //console.log(countNews);
         })
-        return res.status(200).json({ success: true,  countUpdated:countUpdated ,   countNews: countNews, countCustomers: countCustomers})
+        
+        const response = {
+          success:true,
+          locationName: selectedLocation
+        }
+
+        return res.status(200).json(response)
       }
     })
   } catch(ex) {
     console.log(ex);
+    
     
     return res.status(500).json({ error: ex })
   }
