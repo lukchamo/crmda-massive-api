@@ -47,12 +47,18 @@ async function writeMassive(req, res) {
 
             //DB.ref("/customers/")
             var telefonos = [] 
-
+            var statusCode = 're_venta'
             DB.ref("/customers").child(x[2]).once('value',customerSnapshot=>{
 
               const Customer = customerSnapshot.val()
               if(customerSnapshot.exists()){
-                console.log('Existente', Customer.placa );
+                
+                console.log('Existente')
+                  if(fechaRtmVencidaUnix > Customer.fechaRtmVencidaUnix){
+                    statusCode = 'post_venta'
+                    console.log('post_venta')
+                  }
+
                   telefonos = Customer.telefonos
 
                   //console.log(telefonos)
@@ -101,7 +107,7 @@ async function writeMassive(req, res) {
                 sourceKey: sourceKey,
                 location: selectedLocation,
                 createdBy: uid,
-                statusCode: 're_venta'
+                statusCode: statusCode
               }
 
               DB.ref("/customers/" + x[2]).update(Customer)
