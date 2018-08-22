@@ -142,4 +142,64 @@ async function writeMassive(req, res) {
   }
 }
 
-module.exports = { writeMassive }
+
+async function writeMassiveGarages(req, res) {
+  try {
+    const garagesRef = DB.ref("/garages")
+    const c = await fs.readFileSync(req.files.csvFile.path, "utf8")
+    const d = papaparse.parse(c, {
+      complete: result => {
+        const now = moment().unix()
+        // const selectedLocation = req.body.selectedLocation
+        // const sourceKey = req.body.sourceKey
+        const uid = req.body.uid
+        
+        var i = 0
+        result.data.forEach(x => {
+          
+          if(x[0] && i > 0 ){
+            
+            
+            let telefonosArray = []
+
+            if(x[4] != '' ) telefonosArray.push(x[4])
+            if(x[5] != '' ) telefonosArray.push(x[5])
+            if(x[6] != '' ) telefonosArray.push(x[6])
+
+            const Garage = {
+              //codigo:x[0],
+              nombre:x[1] || null,
+              propietario:x[2] || null,
+              direccion:x[3] || null,
+              telefonos:telefonosArray,
+              zona:x[7] || null
+            }
+
+            //console.log(Garage);
+            
+            garagesRef.child(x[0]).update(Garage)
+
+
+          }
+
+          i++ 
+
+
+        })
+        
+        const response = {
+          success:true,
+        }
+
+        return res.status(200).json(response)
+      }
+    })
+  } catch(ex) {
+    console.log(ex);
+    
+    
+    return res.status(500).json({ error: ex })
+  }
+}
+
+module.exports = { writeMassive, writeMassiveGarages }

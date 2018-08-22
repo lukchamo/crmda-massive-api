@@ -6,8 +6,11 @@ import multipart from "connect-multiparty"
 const api = express.Router()
 
 api.post("/customers/write-massive", multipart(), customersController.writeMassive)
+api.post("/garages/write-massive", multipart(), customersController.writeMassiveGarages)
+
+
 api.get("/customers/test", function(req,res){
-  res.send('Test ok jajjajaja - Rama LK ')
+  res.send('APi - Actualizada 22 de Agoto 6:52 am')
 })
 
 
