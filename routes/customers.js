@@ -7,7 +7,7 @@ const api = express.Router()
 
 api.post("/customers/write-massive", multipart(), customersController.writeMassive)
 api.post("/garages/write-massive", multipart(), customersController.writeMassiveGarages)
-
+api.post("/customers/fill-data-clients", multipart(), customersController.fillDataClients)
 
 api.get("/customers/test", function(req,res){
   res.send('APi - Actualizada 22 de Agoto 6:52 am')
@@ -76,6 +76,7 @@ api.post("/customers/telesign", function(req,res){
   client.sms.message(messageCallback, phoneNumber, message, messageType);
   
 })
+
 
 
 

@@ -47,7 +47,7 @@ async function writeMassive(req, res) {
 
             //DB.ref("/customers/")
             var telefonos = [] 
-            var statusCode = 're_venta'
+            var statusCode = 'venta'
             DB.ref("/customers").child(x[2]).once('value',customerSnapshot=>{
 
               const Customer = customerSnapshot.val()
@@ -110,7 +110,10 @@ async function writeMassive(req, res) {
                 statusCode: statusCode
               }
 
-              DB.ref("/customers/" + x[2]).update(Customer)
+              //if(x[12])
+              //console.log(Customer)
+
+             DB.ref("/customers/" + x[2]).update(Customer)
             })
 
             
@@ -208,4 +211,28 @@ async function writeMassiveGarages(req, res) {
   }
 }
 
-module.exports = { writeMassive, writeMassiveGarages }
+
+async function fillDataClients(req, res) {
+  try {
+    const clientsRef = DB.ref("/customers")
+
+    const uid = req.body.uid
+
+    const response = {
+      success:true,
+      totalRecords: 1,
+      rows: {}
+    }
+
+     return res.status(200).json(response)
+      
+    
+  } catch(ex) {
+    console.log(ex);    
+    
+    return res.status(500).json({ error: ex })
+  }
+}
+
+
+module.exports = { writeMassive, writeMassiveGarages, fillDataClients }
