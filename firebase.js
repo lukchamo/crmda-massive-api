@@ -6,4 +6,7 @@ admin.initializeApp({
 	databaseURL: "https://crm-diagnostiautos.firebaseio.com/"
 })
 
+//https://crm-diagnostiautos.firebaseio.com/
+//https://dev-crmd.firebaseio.com
+
 export const DB = admin.database()

@@ -16,6 +16,7 @@
     "connect-multiparty": "^2.1.1",
     "cors": "^2.8.4",
     "express": "^4.16.3",
+    "fastest-validator": "^0.6.10",
     "firebase-admin": "^5.13.1",
     "moment": "^2.22.2",
     "papaparse": "^4.6.0",

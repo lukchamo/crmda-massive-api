@@ -3,11 +3,13 @@ import customersController from "../controllers/customers"
 import multipart from "connect-multiparty"
 
 
+
 const api = express.Router()
 
 api.post("/customers/write-massive", multipart(), customersController.writeMassive)
+api.post("/customers/update-customers", multipart(), customersController.updateCustomers)
 api.post("/garages/write-massive", multipart(), customersController.writeMassiveGarages)
-api.post("/customers/fill-data-clients", multipart(), customersController.fillDataClients)
+//api.post("/customers/fill-data-clients", multipart(), customersController.fillDataClients)
 
 api.get("/customers/test", function(req,res){
   res.send('APi - Actualizada 22 de Agoto 6:52 am')

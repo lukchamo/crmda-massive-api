@@ -2,6 +2,7 @@ import app from "./app"
 import bodyParser from "body-parser"
 import cors from "cors"
 import customersRoutes from "./routes/customers"
+import https from "https"
 
 const PORT = 3000
 
@@ -12,3 +13,4 @@ app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }))
 app.use("/api", customersRoutes)
 
 app.listen(PORT, () => console.log("Server running on port: ", PORT))
+
