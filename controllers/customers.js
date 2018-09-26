@@ -2,6 +2,8 @@ import { DB } from "../firebase"
 import moment from "moment"
 import papaparse from "papaparse"
 import fs from "fs"
+import groupArray from 'group-array'
+
 
 import Validator from "fastest-validator"
 
@@ -16,20 +18,26 @@ async function writeMassive(req, res) {
         const sourceKey = req.body.sourceKey
         const uid = req.body.uid
 
-        const locationRef = DB.ref("/locations/"+selectedLocation)
+        // const locationRef = DB.ref("/locations/"+selectedLocation)
 
-        let locationName
-        locationRef.once('value', locationSnap=>{
-          locationName = locationSnap.val()
-        })
+        // let locationName
+        // locationRef.once('value', locationSnap=>{
+        //   locationName = locationSnap.val()
+        // })
 
         var countUpdated = 0;
         var countNews = 0;
         var countCustomers = 0;
 
         countCustomers = result.data.length;
+        var i = 0
 
-        result.data.forEach(x => {
+       
+
+        result.data.forEach(async (x) => {
+
+        
+          
 
           //var self =  this
           //console.log(x[0]);
@@ -40,87 +48,185 @@ async function writeMassive(req, res) {
             let fechaRtmVencida 
             let fechaRtmVencidaUnix
 
-            if(x[12] != ''){
-             fechaRtmVencida = moment(x[12],'D/MM/YYYY')
-             fechaRtmVencidaUnix = moment(fechaRtmVencida).unix()
-            }else{
-              fechaRtmVencidaUnix = ''
-            }
+            // if(x[0] != ''){
+            //  fechaRtmVencida = moment(x[12],'D/MM/YYYY')
+            //  fechaRtmVencidaUnix = moment(fechaRtmVencida).unix()
+            // }else{
+            //   fechaRtmVencidaUnix = ''
+            // }
 
            // fechaRtmVencida = moment(fechaRtmVencida).add(1,'Y')
 
             //DB.ref("/customers/")
             var telefonos = [] 
             var statusCode = 'venta'
-            DB.ref("/customers").child(x[2]).once('value',customerSnapshot=>{
+            var fechaRtmBD
+            var fechaRtmBDUnix
+            var jsDate
+            var jsDateUnix
 
+            var jsDateVencimiento
+            var jsDateVencimientoUnix
+           
+
+              
+
+              const customerSnapshot = await DB.ref("/customers").child(x[2]).once('value')
+
+              if(customerSnapshot.exists())
+              countUpdated++
+
+              i++
+         
               const Customer = customerSnapshot.val()
-              if(customerSnapshot.exists()){
+
+             
+
+              jsDate = moment(x[0], 'DD/MM/YYYY')
+              jsDateUnix = jsDate.unix()
+
+              jsDateVencimiento =  jsDate.add(1,'y')
+              jsDateVencimientoUnix = jsDateVencimiento.unix()
+
+              
+     
+              const nCustomer = {
+                fechaRtm2017: jsDate.format('DD/MM/YYYY') || null,
+                fechaRtm2017Unix: jsDateUnix || null,
+                fechaRtmVencida: jsDateVencimiento.format('DD/MM/YYYY') || null,
+                fechaRtmVencidaUnix: jsDateVencimientoUnix || null,
+                rtm:'customer_exist',
+              }
+              
+
+              DB.ref("/customers/" + x[2]).update(nCustomer)
+
+              console.log(jsDate);
+              console.log(i,x[0],nCustomer);
+            
                 
-                console.log('Existente')
-                  if(fechaRtmVencidaUnix > Customer.fechaRtmVencidaUnix){
-                    statusCode = 'post_venta'
-                    console.log('post_venta')
-                  }
+                
 
-                  telefonos = Customer.telefonos
+              // DB.ref("/customers").child(x[2]).once('value', customerSnapshot=>{
 
-                  //console.log(telefonos)
-                  if(Customer.telefonos){
-                    if(x[6].length == 10){   
-                      if(telefonos.indexOf(x[6]) === -1) {                                           
-                        telefonos.push(x[6]) 
-                      }
-                    }                    
-                    if(x[6].length == 10){            
-                      if(telefonos.indexOf(x[13]) === -1) {
-                        telefonos.push(x[13]) 
-                      }
-                    }
-                  }
-              }else{
-                console.log('NUEVO');
-                if(x[6].length == 10){ 
-                 telefonos.push(x[6]) 
-                }
-                if(x[13].length == 7 && x[13] != 1000000){      
-                  telefonos.push(x[13])
-                } 
-               
-              }
-              
-              
+                // const Customer = customerSnapshot.val()
 
-            }).then(()=>{
-              const Customer = {
-                fechaRtm: x[0] || null,
-                nombreCliente: x[1] || null,
-                registro1: x[3] || null,
-                identificacion: x[4] || null,
-                direccion: x[5] || null,
-                telefonos: telefonos,
-                marca: x[7] || null,
-                linea: x[8] || null,
-                tipoServicio: x[9] || null,
-                tipoVehiculo: x[10] || null,
-                modelo: x[11] || null,
-                fechaRtmVencida: fechaRtmVencida || null,
-                fechaRtmVencidaUnix: fechaRtmVencidaUnix || null,
-                //registro2: x[13],
-                // poseedor: x[13] || null,
-                // celular2: x[14] || null,
-                createdAt: now,
-                sourceKey: sourceKey,
-                location: selectedLocation,
-                createdBy: uid,
-                statusCode: statusCode
-              }
+                // console.log(i, x[0]);
 
-              //if(x[12])
-              //console.log(Customer)
+                // if(customerSnapshot.exists()){
 
-             DB.ref("/customers/" + x[2]).update(Customer)
-            })
+                //   countUpdated++
+                  
+                //   const jsFechaRtmBD = new Date(x[0])
+
+                //   const jsRtmDBUnix = jsFechaRtmBD.getTime() / 1000
+                //   //const jsRtmDBUnix = jsFechaRtmBD.getTime() / 1000
+
+                //   //fechaRtmBD = moment(x[0],'D/MM/YYYY')
+                //   //fechaRtmBDUnix = moment(fechaRtmBD).unix()
+                  
+                //   //fechaRtmBD = fechaRtmBD.format('D/MM/YYYY')
+
+                //   fechaRtmBD = x[0]
+                //   fechaRtmBDUnix = jsRtmDBUnix
+
+                //   //jsFechaRtmBD
+
+
+                //   //console.log(x[0], fechaRtmBD, fechaRtmBDUnix, x[2]);
+                  
+
+
+                //     // if(fechaRtmVencidaUnix > Customer.fechaRtmVencidaUnix){
+                //     //   statusCode = 'post_venta'
+                //     //   console.log('post_venta')
+                //     // }
+
+                    
+
+                //     //telefonos = Customer.telefonos
+
+                //     // //console.log(telefonos)
+                //     // if(Customer.telefonos){
+                //     //   if(x[6].length == 10){   
+                //     //     if(telefonos.indexOf(x[6]) === -1) {                                           
+                //     //       telefonos.push(x[6]) 
+                //     //     }
+                //     //   }                    
+                //     //   if(x[6].length == 10){            
+                //     //     if(telefonos.indexOf(x[13]) === -1) {
+                //     //       telefonos.push(x[13]) 
+                //     //     }
+                //     //   }
+                //     // }
+                // }else{
+                //   console.log('NUEVO');
+
+                //   countNews++
+
+                //   fechaRtmBD = null
+                //   fechaRtmBDUnix = null
+                //   // if(x[6].length == 10){ 
+                //   //  telefonos.push(x[6]) 
+                //   // }
+                //   // if(x[13].length == 7 && x[13] != 1000000){      
+                //   //   telefonos.push(x[13])
+                //   // } 
+                
+                // }
+                
+
+                
+
+
+
+                //   const jsRtmDBUnix = jsFechaRtmBD.getTime() / 1000
+                //   //const jsRtmDBUnix = jsFechaRtmBD.getTime() / 1000
+                
+                
+
+              // }).then(()=>{
+
+
+
+
+              //   const Customer = {
+              //     fechaRtm2017: x[0] || null,
+              //     fechaRtm2017Unix: jsDateUnix || null,
+              //     fechaRtmVencida: jsDateVencimiento || null,
+              //     fechaRtmVencidaUnix: jsDateVencimientoUnix || null,       
+              //     // fechaRtm: x[0] || null,
+              //     // fechaRtmBD: fechaRtmBD || null,
+              //     // fechaRtmBDUnix: fechaRtmBDUnix || null
+              //     // nombreCliente: x[1] || null,
+              //     // registro1: x[3] || null,
+              //     // identificacion: x[4] || null,
+              //     // direccion: x[5] || null,
+              //     // telefonos: telefonos,
+              //     // marca: x[7] || null,
+              //     // linea: x[8] || null,
+              //     // tipoServicio: x[9] || null,
+              //     // tipoVehiculo: x[10] || null,
+              //     // modelo: x[11] || null,
+              //     // fechaRtmVencida: fechaRtmVencida || null,
+              //     // fechaRtmVencidaUnix: fechaRtmVencidaUnix || null,               
+              //     // createdAt: now,
+              //     // sourceKey: sourceKey,
+              //     // location: selectedLocation,
+              //     // createdBy: uid,
+              //     // statusCode: statusCode
+              //   }
+
+              //   //if(x[12])
+                
+
+              //   // setTimeout(()=>{
+              //   //   console.log(i,Customer)
+              //   // }, 50)
+
+              // //DB.ref("/customers/" + x[2]).update(Customer)
+              // })
+            
 
             
 
@@ -137,16 +243,23 @@ async function writeMassive(req, res) {
                               
             
           }
-
+          
           //console.log(countNews);
         })
         
-        const response = {
-          success:true,
-          locationName: selectedLocation
-        }
 
-        return res.status(200).json(response)
+        setTimeout(()=>{
+
+          const response = {
+            success:true,
+            countNews,
+            countUpdated
+          }
+  
+          return res.status(200).json(response)
+
+        }, 15000)
+        
       }
     })
   } catch(ex) {
@@ -205,7 +318,7 @@ async function updateCustomers(req, res) {
 
         var checkCustomerKey = checkCustomersRef.push().key
 
-        result.data.forEach(x => {
+        result.data.forEach(async (x) => {
                
           if(x[0]) {
 
@@ -222,54 +335,69 @@ async function updateCustomers(req, res) {
               var fechaRtmVencida
               var fechaRtmVencidaUnix
 
-              if(x[0] != ''){
-                fechaRtm = moment(x[0],'D/MM/YYYY')
-                fechaRtmUnix = moment(fechaRtm).unix()
+              var jsDate
+              var jsDateUnix
 
-                fechaRtmVencida = moment(fechaRtm).add(1,'Y').format('D/MM/YYYY')
-                fechaRtmVencidaUnix = moment(fechaRtm).add(1,'Y').unix()
-              }else{
-                fechaRtmUnix = ''
+              var jsDateVencimiento
+              var jsDateVencimientoUnix
+
+              if(x[0] != ''){
+                jsDate = moment(x[0], 'DD/MM/YYYY')
+                jsDateUnix = jsDate.unix()
+
+                jsDateVencimiento =  jsDate.add(1,'y')
+                jsDateVencimientoUnix = jsDateVencimiento.unix()
+
               }
+
+
+              
+
               var now
               var telefonos = [] 
               var statusCode = 'venta'
               var typeRtm = ''
               var fechaRtmBD
+              var Customer
               DB.ref("/customers").child(x[2]).once('value',customerSnapshot=>{
                 
                 now = moment().unix()
 
-                const Customer = customerSnapshot.val()
+                Customer = customerSnapshot.val()
                 if(customerSnapshot.exists()){
-                  countUpdated++
+                  //countUpdated++
 
                   now = Customer.createdAt
                   sourceKey = Customer.sourceKey
-
-                  fechaRtmBD = moment(Customer.fechaRtm,'D/MM/YYYY')
-                  const fechaRtmBDUnix = moment(fechaRtmBD).unix()
                   
-                  fechaRtmBD = fechaRtmBD.format('D/MM/YYYY')
+                  typeRtm = 'customer_exist'
+                  statusCode = 'post_venta'
 
-                  
-                  typeRtm = 'rtm_cita'
+                  if(Customer.rtm != typeRtm){
+                    typeRtm = 'customer_new'
+                    countNews++
+                  }else{
+                    typeRtm = 'customer_exist'
+                    countUpdated++
+                  }
 
-                  if(fechaRtmUnix > fechaRtmBDUnix){
-                      statusCode = 'post_venta'
-                      //console.log('post_venta', x)
+                  // if(fechaRtmUnix > fechaRtmBDUnix){
+                  //     statusCode = 'post_venta'
+                  //     //console.log('post_venta', x)
 
-                      console.log('POSTVENTA -> fechaRtmVencidaUnix: ', fechaRtm, 'Fecha RTM cUSTOMER: ',Customer.fechaRtm  )
+                  //     console.log('POSTVENTA -> fechaRtmVencidaUnix: ', fechaRtm, 'Fecha RTM cUSTOMER: ',Customer.fechaRtm  )
 
-                      countPostVenta++;
-                    }else{
-                      console.log('SIN CITA -> fechaRtmVencidaUnix: ', fechaRtm, 'Fecha RTM cUSTOMER: ',Customer.fechaRtm  )
-                    }
+                  //     countPostVenta++;
+                  //   }else{
+                  //     console.log('SIN CITA -> fechaRtmVencidaUnix: ', fechaRtm, 'Fecha RTM cUSTOMER: ',Customer.fechaRtm  )
+                  //   }
 
-                    telefonos = Customer.telefonos
+                    
 
                     //console.log(telefonos)
                     if(Customer.telefonos){
+                      telefonos = Customer.telefonos
+
                       if(x[6].length == 10){   
                         if(telefonos.indexOf(x[6]) === -1) {                                           
                           telefonos.push(x[6]) 
@@ -280,12 +408,14 @@ async function updateCustomers(req, res) {
                           telefonos.push(x[12]) 
                         }
                       }
+                    }else{
+                      telefonos.push(x[6])
                     }
-                }else{
-
-                  fechaRtmBD = null
+                }else{                  
                   
-                  typeRtm = 'rtm_sin_cita'
+                  typeRtm = 'customer_new'
+
+                  
 
                   countNews++
                   console.log('NUEVO');
@@ -322,48 +452,60 @@ async function updateCustomers(req, res) {
                 const newLogsChecksCustomers = {					
                     uid:uid,
                     //ucode:user.code,
-                    fechaRtmBD:fechaRtmBD,
+                    //fechaRtmBD:fechaRtmBD,
                     customerKey: x[2],
                     checkCustomerKey:checkCustomerKey,
-                    rtm:typeRtm,                  
+                    rtm:typeRtm,
+                    fechaRtm2018:jsDate,
+                    fechaRtm2018Unix:jsDateUnix,
                     createdAt: now
                 }
 
-                console.log(newLogsChecksCustomers);
+                //console.log(newLogsChecksCustomers);
 
 
-                const Customer = {
-                  fechaRtmBD:fechaRtmBD,
-                  fechaRtm: x[0] || null,
-                  nombreCliente: x[1] || null,
-                  registro1: x[3] || null,
-                  identificacion: x[4] || null,
-                  direccion: x[5] || null,
-                  telefonos: telefonos,
-                  marca: x[7] || null,
-                  linea: x[8] || null,
-                  tipoServicio: x[9] || null,
-                  tipoVehiculo: x[10] || null,
-                  modelo: x[11] || null,
-                  fechaRtmVencida: fechaRtmVencida || null,
-                  fechaRtmVencidaUnix: fechaRtmVencidaUnix || null,
-                  //registro2: x[13],
-                  poseedor: x[13] || null,
-                  celular2: x[14] || null,
-                  createdAt: now,
-                  sourceKey: sourceKey,
-                  location: selectedLocation,
-                  createdBy: uid,
+                
+
+
+                const nCustomer = {
+
+                  fechaRtm2018: jsDate.format('DD/MM/YYYY') || null,
+                  fechaRtm2018Unix: jsDateUnix || null,
+                  fechaRtmVencida: jsDateVencimiento.format('DD/MM/YYYY') || null,
+                  fechaRtmVencidaUnix: jsDateVencimientoUnix || null,
+
+                  // fechaRtmBD:fechaRtmBD,
+                  // fechaRtm: x[0] || null,
+                   nombreCliente: x[1] ||  null,
+                  // registro1: x[3] || null,
+                   identificacion: x[4] || null,
+                   direccion: x[5] || null,
+                   telefonos: telefonos || null,
+                   marca: x[7] ||  null,
+                   linea: x[8] ||  null,
+                   tipoServicio: x[9] ||  null,
+                   tipoVehiculo: x[10] ||  null,
+                   modelo: x[11] || Customer.modelo || null,
+                  // fechaRtmVencida: fechaRtmVencida || null,
+                  // fechaRtmVencidaUnix: fechaRtmVencidaUnix || null,
+                   //registro2: x[13],
+                   poseedor: x[13] ||  null,
+                   celular2: x[14] || null,
+                  // createdAt: now,
+                  // sourceKey: sourceKey,
+                   location: selectedLocation,
+                  // createdBy: uid,
+                  rtm:typeRtm,
                   statusCode: statusCode,
-                  checkCustomerKey:checkCustomerKey,     
+                  //checkCustomerKey:checkCustomerKey,     
                 }
 
-                //console.log(Customer);
+                console.log(nCustomer);
                 
                 //console.log(countNews, countUpdated);
-                DB.ref("/logsChecksCustomers/" + logsChecksCustomersKey).set(newLogsChecksCustomers)
+                //DB.ref("/logsChecksCustomers/" + logsChecksCustomersKey).set(newLogsChecksCustomers)
 
-                DB.ref("/customers/" + x[2]).update(Customer)
+                DB.ref("/customers/" + x[2]).update(nCustomer)
               })
 
             }else{
@@ -401,13 +543,14 @@ async function updateCustomers(req, res) {
             customersNew:countNews,
             location:selectedLocation,
             failCertificado: failCertificado,
-            failNombre: failNombre
+            failNombre: failNombre,
+            countFail: countFail
           }
           
           checkCustomersRef.child(checkCustomerKey).set(checkCustomer)
   
           return res.status(200).json(response)
-        }, 5000)
+        }, 4000)
         
       }
     })
@@ -483,7 +626,7 @@ async function writeMassiveGarages(req, res) {
 
 async function fillDataClients(req, res) {
   try {
-    const clientsRef = DB.ref("/customers")
+    const customerRef = DB.ref("/customers")
 
     const uid = req.body.uid
 
@@ -493,15 +636,108 @@ async function fillDataClients(req, res) {
       rows: {}
     }
 
+    customerRef.once('value', (customerSnap)=>{
+      let i = 0
+      var ObjectByLocation  = {}, arraySedesRtm = []
+
+
+      const array = Object.values(customerSnap.val())
+
+      ObjectByLocation = groupArray(array, 'location')						
+
+      arraySedesRtm['diagnostiautos'] = {rtmEstimadas:0,rtmAntiguos:0, rtmNuevos:0}
+      arraySedesRtm['la_paz'] = {rtmEstimadas:0,rtmAntiguos:0, rtmNuevos:0}
+      arraySedesRtm['revimoto_1a'] = {rtmEstimadas:0,rtmAntiguos:0, rtmNuevos:0}
+      arraySedesRtm['supermotos'] = {rtmEstimadas:0,rtmAntiguos:0, rtmNuevos:0}
+
+      
+
+      for (const key in ObjectByLocation) {
+            
+        const data = {
+          sede: key,
+          rtmEstimadas: ObjectByLocation[key].length,
+      
+        }
+        
+
+        arraySedesRtm[key] = {
+          sede: key,
+          rtmEstimadas: ObjectByLocation[key].length,
+          rtmAntiguos:null,
+          rtmNuevos:null
+        }
+      
+      }
+      setTimeout(()=>{
+        console.log(arraySedesRtm);
+      },3000)
+      
+      
+      
+
+
+      customerSnap.forEach((snap)=>{
+        const data = snap.val()
+
+        if(i < 40){
+         // console.log(data.fechaRtm);
+
+
+
+          	
+
+								
+          
+            
+        }
+
+        i++
+      })
+
+      
+      
+
+     // return res.status(200).json(clientsSnap.val())
+    })
+
+
      return res.status(200).json(response)
       
     
   } catch(ex) {
-    console.log(ex);    
+    
+      
     
     return res.status(500).json({ error: ex })
   }
 }
 
 
-module.exports = { writeMassive,updateCustomers, writeMassiveGarages, fillDataClients }
+async function postVenta(req,res){
+  console.log('ok');
+
+  DB.ref("/customers").orderByChild('statusCode').equalTo('post_venta').once('value',logCheckSnapshot=>{
+    logCheckSnapshot.forEach((snap)=>{
+      const Customer = snap.val()
+      
+
+      // const fechaRtm = moment(Customer.fechaRtmBD,'D/MM/YYYY')
+
+
+      // const data = {
+      //   fechaRtm: fechaRtm.add(1,'y').format('D/MM/YYYY')
+      // }
+
+      // console.log(Customer.fechaRtmBD, data.fechaRtm);
+
+      console.log(Customer.fechaRtm, Customer.fechaRtmBD,Customer.fechaRtmBDUnix );
+      
+      
+    })
+  })
+  res.send('Post Ventas Log')
+}
+
+
+module.exports = { writeMassive,updateCustomers, writeMassiveGarages, fillDataClients, postVenta }

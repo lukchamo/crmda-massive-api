@@ -9,10 +9,15 @@ const api = express.Router()
 api.post("/customers/write-massive", multipart(), customersController.writeMassive)
 api.post("/customers/update-customers", multipart(), customersController.updateCustomers)
 api.post("/garages/write-massive", multipart(), customersController.writeMassiveGarages)
-//api.post("/customers/fill-data-clients", multipart(), customersController.fillDataClients)
+api.get("/customers/fill-data-clients",  customersController.fillDataClients)
 
 api.get("/customers/test", function(req,res){
-  res.send('APi - Actualizada 22 de Agoto 6:52 am')
+  var d = new Date('12/09/2017') // Esta fecha es correcta
+  console.log(d);
+  var d = new Date('13/09/2017') // esta fecha es invalida
+  console.log(d);
+  
+  res.send('APi')
 })
 
 
@@ -78,6 +83,9 @@ api.post("/customers/telesign", function(req,res){
   client.sms.message(messageCallback, phoneNumber, message, messageType);
   
 })
+
+
+api.get("/customers/postventas", customersController.postVenta)
 
 
 
