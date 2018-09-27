@@ -48,184 +48,93 @@ async function writeMassive(req, res) {
             let fechaRtmVencida 
             let fechaRtmVencidaUnix
 
-            // if(x[0] != ''){
-            //  fechaRtmVencida = moment(x[12],'D/MM/YYYY')
-            //  fechaRtmVencidaUnix = moment(fechaRtmVencida).unix()
-            // }else{
-            //   fechaRtmVencidaUnix = ''
-            // }
+            if(x[0] != ''){
+
+             fechaRtmBD = moment(x[0],'D/MM/YYYY')
+             fechaRtmBDUnix = fechaRtmBD.unix()
+
+             fechaRtmVencida = fechaRtmBD.add(1,'Y')             
+             fechaRtmVencidaUnix = fechaRtmVencida.unix()
+            }else{
+              fechaRtmVencidaUnix = ''
+            }
 
            // fechaRtmVencida = moment(fechaRtmVencida).add(1,'Y')
 
             //DB.ref("/customers/")
             var telefonos = [] 
-            var statusCode = 'venta'
+            var statusCode = 're_venta'
+            var rtm = 'customer_bd'
             var fechaRtmBD
             var fechaRtmBDUnix
-            var jsDate
-            var jsDateUnix
+          
 
-            var jsDateVencimiento
-            var jsDateVencimientoUnix
-           
+              DB.ref("/customers").child(x[2]).once('value', customerSnapshot=>{
 
-              
-
-              const customerSnapshot = await DB.ref("/customers").child(x[2]).once('value')
-
-              if(customerSnapshot.exists())
-              countUpdated++
-
-              i++
-         
-              const Customer = customerSnapshot.val()
-
-             
-
-              jsDate = moment(x[0], 'DD/MM/YYYY')
-              jsDateUnix = jsDate.unix()
-
-              jsDateVencimiento =  jsDate.add(1,'y')
-              jsDateVencimientoUnix = jsDateVencimiento.unix()
-
-              
-     
-              const nCustomer = {
-                fechaRtm2017: jsDate.format('DD/MM/YYYY') || null,
-                fechaRtm2017Unix: jsDateUnix || null,
-                fechaRtmVencida: jsDateVencimiento.format('DD/MM/YYYY') || null,
-                fechaRtmVencidaUnix: jsDateVencimientoUnix || null,
-                rtm:'customer_exist',
-              }
-              
-
-              DB.ref("/customers/" + x[2]).update(nCustomer)
-
-              console.log(jsDate);
-              console.log(i,x[0],nCustomer);
-            
-                
+                const Customer = customerSnapshot.val()                
+               
                 
 
-              // DB.ref("/customers").child(x[2]).once('value', customerSnapshot=>{
+                  countNews++
 
-                // const Customer = customerSnapshot.val()
-
-                // console.log(i, x[0]);
-
-                // if(customerSnapshot.exists()){
-
-                //   countUpdated++
                   
-                //   const jsFechaRtmBD = new Date(x[0])
+                  if(x[6].length == 10){ 
+                   telefonos.push(x[6]) 
+                  }
+                  if(x[13]){
+                    if(x[13].length == 7 && x[13] != 100000){      
+                      telefonos.push(x[13])
+                    } 
+                  }
 
-                //   const jsRtmDBUnix = jsFechaRtmBD.getTime() / 1000
-                //   //const jsRtmDBUnix = jsFechaRtmBD.getTime() / 1000
-
-                //   //fechaRtmBD = moment(x[0],'D/MM/YYYY')
-                //   //fechaRtmBDUnix = moment(fechaRtmBD).unix()
-                  
-                //   //fechaRtmBD = fechaRtmBD.format('D/MM/YYYY')
-
-                //   fechaRtmBD = x[0]
-                //   fechaRtmBDUnix = jsRtmDBUnix
-
-                //   //jsFechaRtmBD
-
-
-                //   //console.log(x[0], fechaRtmBD, fechaRtmBDUnix, x[2]);
-                  
-
-
-                //     // if(fechaRtmVencidaUnix > Customer.fechaRtmVencidaUnix){
-                //     //   statusCode = 'post_venta'
-                //     //   console.log('post_venta')
-                //     // }
-
-                    
-
-                //     //telefonos = Customer.telefonos
-
-                //     // //console.log(telefonos)
-                //     // if(Customer.telefonos){
-                //     //   if(x[6].length == 10){   
-                //     //     if(telefonos.indexOf(x[6]) === -1) {                                           
-                //     //       telefonos.push(x[6]) 
-                //     //     }
-                //     //   }                    
-                //     //   if(x[6].length == 10){            
-                //     //     if(telefonos.indexOf(x[13]) === -1) {
-                //     //       telefonos.push(x[13]) 
-                //     //     }
-                //     //   }
-                //     // }
-                // }else{
-                //   console.log('NUEVO');
-
-                //   countNews++
-
-                //   fechaRtmBD = null
-                //   fechaRtmBDUnix = null
-                //   // if(x[6].length == 10){ 
-                //   //  telefonos.push(x[6]) 
-                //   // }
-                //   // if(x[13].length == 7 && x[13] != 1000000){      
-                //   //   telefonos.push(x[13])
-                //   // } 
-                
-                // }
-                
-
-                
-
-
-
-                //   const jsRtmDBUnix = jsFechaRtmBD.getTime() / 1000
-                //   //const jsRtmDBUnix = jsFechaRtmBD.getTime() / 1000
+                  //const jsRtmDBUnix = jsFechaRtmBD.getTime() / 1000
+                  //const jsRtmDBUnix = jsFechaRtmBD.getTime() / 1000
                 
                 
 
-              // }).then(()=>{
+              }).then(()=>{
 
 
 
 
-              //   const Customer = {
-              //     fechaRtm2017: x[0] || null,
-              //     fechaRtm2017Unix: jsDateUnix || null,
-              //     fechaRtmVencida: jsDateVencimiento || null,
-              //     fechaRtmVencidaUnix: jsDateVencimientoUnix || null,       
-              //     // fechaRtm: x[0] || null,
-              //     // fechaRtmBD: fechaRtmBD || null,
-              //     // fechaRtmBDUnix: fechaRtmBDUnix || null
-              //     // nombreCliente: x[1] || null,
-              //     // registro1: x[3] || null,
-              //     // identificacion: x[4] || null,
-              //     // direccion: x[5] || null,
-              //     // telefonos: telefonos,
-              //     // marca: x[7] || null,
-              //     // linea: x[8] || null,
-              //     // tipoServicio: x[9] || null,
-              //     // tipoVehiculo: x[10] || null,
-              //     // modelo: x[11] || null,
-              //     // fechaRtmVencida: fechaRtmVencida || null,
-              //     // fechaRtmVencidaUnix: fechaRtmVencidaUnix || null,               
-              //     // createdAt: now,
-              //     // sourceKey: sourceKey,
-              //     // location: selectedLocation,
-              //     // createdBy: uid,
-              //     // statusCode: statusCode
-              //   }
+                const Customer = {
+                  // fechaRtm2017: x[0] || null,
+                  // fechaRtm2017Unix: jsDateUnix || null,
+                  // fechaRtmVencida: jsDateVencimiento || null,
+                  // fechaRtmVencidaUnix: fechaRtmVencidaUnix || null,       
+                  fechaRtm: x[0] || null,
+                  fechaRtmBD: fechaRtmBD.format('DD/MM/YYYY') || null,
+                  fechaRtmBDUnix: fechaRtmBDUnix || null,
+                  nombreCliente: x[1] || null,
+                  registro1: x[3] || null,
+                  identificacion: x[4] || null,
+                  direccion: x[5] || null,
+                  telefonos: telefonos,
+                  marca: x[7] || null,
+                  linea: x[8] || null,
+                  tipoServicio: x[9] || null,
+                  tipoVehiculo: x[10] || null,
+                  modelo: x[11] || null,
+                  fechaRtmVencida: fechaRtmVencida.format('DD/MM/YYYY') || null,
+                  fechaRtmVencidaUnix: fechaRtmVencidaUnix || null,               
+                  createdAt: now,
+                  sourceKey: sourceKey,
+                  location: selectedLocation,
+                  createdBy: uid,
+                  rtm:rtm,
+                  statusCode: statusCode
+                }
 
-              //   //if(x[12])
+                console.log(Customer);
+                //if(x[12])
                 
 
-              //   // setTimeout(()=>{
-              //   //   console.log(i,Customer)
-              //   // }, 50)
+                // setTimeout(()=>{
+                //   console.log(i,Customer)
+                // }, 50)
 
-              // //DB.ref("/customers/" + x[2]).update(Customer)
-              // })
+               DB.ref("/customers/" + x[2]).update(Customer)
+              })
             
 
             
@@ -233,7 +142,7 @@ async function writeMassive(req, res) {
             
             
 
-            //console.log(Customer);
+            
             
             //console.log('Placa:'+ x[2] +'Tel:'+ telefonos + 'fecha:' + (fechaRtmVencidaUnix || null)  );
             
@@ -258,7 +167,7 @@ async function writeMassive(req, res) {
   
           return res.status(200).json(response)
 
-        }, 15000)
+        }, 5000)
         
       }
     })
@@ -638,59 +547,27 @@ async function fillDataClients(req, res) {
 
     customerRef.once('value', (customerSnap)=>{
       let i = 0
-      var ObjectByLocation  = {}, arraySedesRtm = []
-
-
-      const array = Object.values(customerSnap.val())
-
-      ObjectByLocation = groupArray(array, 'location')						
-
-      arraySedesRtm['diagnostiautos'] = {rtmEstimadas:0,rtmAntiguos:0, rtmNuevos:0}
-      arraySedesRtm['la_paz'] = {rtmEstimadas:0,rtmAntiguos:0, rtmNuevos:0}
-      arraySedesRtm['revimoto_1a'] = {rtmEstimadas:0,rtmAntiguos:0, rtmNuevos:0}
-      arraySedesRtm['supermotos'] = {rtmEstimadas:0,rtmAntiguos:0, rtmNuevos:0}
-
-      
-
-      for (const key in ObjectByLocation) {
-            
-        const data = {
-          sede: key,
-          rtmEstimadas: ObjectByLocation[key].length,
-      
-        }
-        
-
-        arraySedesRtm[key] = {
-          sede: key,
-          rtmEstimadas: ObjectByLocation[key].length,
-          rtmAntiguos:null,
-          rtmNuevos:null
-        }
-      
-      }
-      setTimeout(()=>{
-        console.log(arraySedesRtm);
-      },3000)
       
       
-      
-
-
       customerSnap.forEach((snap)=>{
         const data = snap.val()
 
-        if(i < 40){
-         // console.log(data.fechaRtm);
-
-
-
-          	
-
-								
-          
+      
+        
+          if(data.rtm){
             
-        }
+          }else{
+            
+
+            const uCustomer = {
+              rtm: 'customer_bd'
+            }
+            //DB.ref('/customers/'+snap.key).update(uCustomer)
+            console.log(snap.key, uCustomer, data.rtm);
+            
+          }
+            
+       
 
         i++
       })
