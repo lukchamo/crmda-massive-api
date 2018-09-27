@@ -1,9 +1,9 @@
 var https = require('https')
 var fs = require('fs')
 var express = require("express")
-import bodyParser from "body-parser"
-import cors from "cors"
-import customersRoutes from "./routes/customers"
+var bodyParser = require("body-parser")
+var cors = require("cors")
+var customersRoutes = require("./routes/customers")
 
 var options = {
   key: fs.readFileSync("./ssl/p.key"),
