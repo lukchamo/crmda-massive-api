@@ -1,6 +1,6 @@
-import express from "express"
-import customersController from "../controllers/customers"
-import multipart from "connect-multiparty"
+var express = require("express")  
+var customersController = require("../controllers/customers") 
+var multipart = require("connect-multiparty")  
 
 
 

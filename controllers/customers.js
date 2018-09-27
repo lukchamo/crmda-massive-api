@@ -1,11 +1,11 @@
-import { DB } from "../firebase"
-import moment from "moment"
-import papaparse from "papaparse"
-import fs from "fs"
-import groupArray from 'group-array'
+var { DB } = require("../firebase")
+var moment = require("moment")
+var papaparse = require("papaparse")
+var fs = require("fs")
+var groupArray = require('group-array')
 
 
-import Validator from "fastest-validator"
+var Validator = require("fastest-validator")
 
 async function writeMassive(req, res) {
   try {
